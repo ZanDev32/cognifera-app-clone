@@ -1,11 +1,31 @@
-// "use client";
+"use client";
 
-import { deleteBookAction, updateStatusAction } from "@/lib/actions";
-import { getBooks, Book } from "@/lib/data"; // Use the same mock data
+import { useState } from "react";
+import { deleteBookAction, editBookTitle, updateStatusAction } from "@/lib/actions";
+import { Book } from "@/lib/data"; // Use the same mock data
 
-export default async function AdminPage() {
-    const books: Book[] = await getBooks();
+export default function AdminPage() {
+    const [books, setBooks] = useState<Book[]>([]);
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [draftTitle, setDraftTitle] = useState("");
 
+    const startEditing = (book: Book) => {
+        setEditingId(book.id);
+        setDraftTitle(book.title);
+    };
+
+    const cancelEditing = () => {
+        setEditingId(null);
+        setDraftTitle("");
+    };
+
+    const saveTitle = async (bookId: number, formData: FormData) => {
+        await editBookTitle(bookId, formData);
+        const newTitle = (formData.get("title") as string) ?? "";
+        setBooks((prev) => prev.map((b) => (b.id === bookId ? { ...b, title: newTitle } : b)));
+        setEditingId(null);
+    };
+    
     return (
         <div className="min-h-screen p-8">
 
@@ -44,7 +64,45 @@ export default async function AdminPage() {
                     <tbody className="divide-y divide-gray-200">
                         {books.map((book: Book) => (
                             <tr key={book.id} className="hover: bg-gray-50">
-                                <td className="p-4 font-medium">{book.title}</td>
+                                <td className="p-4 font-medium">
+                                    {editingId === book.id ? (
+                                        <form
+                                            action={saveTitle.bind(null, book.id)}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <input
+                                                name="title"
+                                                className="w-full border rounded px-2 py-1"
+                                                value={draftTitle}
+                                                onChange={(e) => setDraftTitle(e.target.value)}
+                                            />
+                                            <button
+                                                type="submit"
+                                                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={cancelEditing}
+                                                className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <span>{book.title}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => startEditing(book)}
+                                                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
+                                    )}
+                                </td>
                                 <td className="p-4 text-gray-600"> {book.author}</td>
                                 {/* Status Column */}
                                 <td className="p-4">
@@ -58,26 +116,34 @@ export default async function AdminPage() {
 
                                 {/* ACTION BUTTONS */}
                                 <td className="p-4 flex gap-2">
-                                    <form action={updateStatusAction.bind(null, book.id, "Published")} >
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                    <form action={updateStatusAction.bind(null, book.id, "Published")}>
+                                        <button
+                                            type="submit"
+                                            className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                                        >
                                             Approve
                                         </button>
                                     </form>
-                                    <form action={updateStatusAction.bind(null, book.id, "Rejected")} >
-                                        <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                    <form action={updateStatusAction.bind(null, book.id, "Rejected")}>
+                                        <button
+                                            type="submit"
+                                            className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                                        >
                                             Reject
                                         </button>
                                     </form>
-                                    {/* CHALLENGE: Call the delete action */}
                                     <form action={deleteBookAction.bind(null, book.id)}>
-                                        <button className="text-gray-400 hover:text-red-600 ml-2">
+                                        <button
+                                            type="submit"
+                                            className="text-gray-400 hover:text-red-600 ml-2"
+                                        >
                                             (x)
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                         ))}
-                    </ tbody>
+                    </tbody>
                 </table>
             </div>
         </div >

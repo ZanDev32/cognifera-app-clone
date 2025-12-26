@@ -19,8 +19,7 @@ export default async function MemberPage() {
                     <form action={uploadBookAction} className="space-y-4">
                         <div>
                             <label
-                                className="block text-sm
-                                mb-1">Book Title</label>
+                                className="block text-sm mb-1">Book Title</label>
                             <input
                                 type="text"
                                 name="title"

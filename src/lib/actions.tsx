@@ -13,12 +13,12 @@ export async function getBooks(): Promise<Book[]> {
 
 export async function uploadBookAction(formData: FormData) {
     const title = formData.get("title") as string;
-    
+
     if (!title) return;
 
     await prisma.book.create({
         data: {
-            title: title,
+            title,
             author: "Member",
             status: "Pending",
             deleted: false,
@@ -28,9 +28,8 @@ export async function uploadBookAction(formData: FormData) {
 }
 
 export async function updateStatusAction(id: number, status: string) {
-    // Database update logic
     await prisma.book.update({
-        where: { id: id },
+        where: { id },
         data: { status: status as "Pending" | "Published" | "Rejected" },
     });
     revalidatePath("/dashboard/admin");
@@ -38,8 +37,19 @@ export async function updateStatusAction(id: number, status: string) {
 
 export async function deleteBookAction(id: number) {
     await prisma.book.update({
-        where: { id: id },
+        where: { id },
         data: { deleted: true },
+    });
+    revalidatePath("/dashboard/admin");
+}
+
+export async function editBookTitle(id: number, formData: FormData) {
+    const newTitle = (formData.get("title") as string) ?? "";
+    if (!newTitle) return;
+
+    await prisma.book.update({
+        where: { id },
+        data: { title: newTitle },
     });
     revalidatePath("/dashboard/admin");
 }
