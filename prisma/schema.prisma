@@ -19,4 +19,5 @@ model Book {
   author    String
   status    String   @default("Pending") // "Pending", "Published", "Rejected"
   createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
 }

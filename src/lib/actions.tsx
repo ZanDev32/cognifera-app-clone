@@ -2,6 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "./db";
+import { Book } from "./data";
+
+export async function getBooks(): Promise<Book[]> {
+    return await prisma.book.findMany({
+        where: { deleted: false },
+        orderBy: { createdAt: "desc" },
+    });
+}
 
 export async function uploadBookAction(formData: FormData) {
     const title = formData.get("title") as string;
@@ -13,10 +21,10 @@ export async function uploadBookAction(formData: FormData) {
             title: title,
             author: "Member",
             status: "Pending",
+            deleted: false,
         },
     });
-    revalidatePath("/dashboard/admin");
-    return { success: true };
+    revalidatePath("/dashboard/member");
 }
 
 export async function updateStatusAction(id: number, status: string) {
@@ -24,6 +32,14 @@ export async function updateStatusAction(id: number, status: string) {
     await prisma.book.update({
         where: { id: id },
         data: { status: status as "Pending" | "Published" | "Rejected" },
+    });
+    revalidatePath("/dashboard/admin");
+}
+
+export async function deleteBookAction(id: number) {
+    await prisma.book.update({
+        where: { id: id },
+        data: { deleted: true },
     });
     revalidatePath("/dashboard/admin");
 }

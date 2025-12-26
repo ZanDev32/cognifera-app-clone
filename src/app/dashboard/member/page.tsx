@@ -1,29 +1,8 @@
 // "use client";
-import { updateStatusAction } from "@/lib/actions";
-import { getBooks } from "@/lib/data"; // Use the same mock data
+import { uploadBookAction, getBooks } from "@/lib/actions";
 
 export default async function MemberPage() {
     const books = await getBooks();
-    const [books, setBooks] = await getBooks();
-    const [title, setTitle] = useState("");
-    const handleUpload = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Create a new dummy book object
-        const newBook = {
-            id: books.length + 1,
-            title: title,
-            author: "Me (Member)",
-            status: "Pending" as const, // Default status
-        };
-
-        //1 Add new book to the list
-        setBooks([...books, newBook]);
-
-        // Reset the form
-        setTitle("");
-        alert("Book uploaded successfully!");
-    };
 
     return (
 
@@ -37,15 +16,14 @@ export default async function MemberPage() {
                 <div className="bg-white p-6 rounded-lg shadow border border-orange-100 h-fit">
                     <h2 className="text-xl font-bold text-orange-600 mb-4">Upload Book</h2>
 
-                    <form onSubmit={handleUpload} className="space-y-4">
+                    <form action={uploadBookAction} className="space-y-4">
                         <div>
                             <label
                                 className="block text-sm
                                 mb-1">Book Title</label>
                             <input
                                 type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                name="title"
                                 className="w-full border p-2 rounded"
                                 placeholder="Enter title..."
                                 required
@@ -54,7 +32,7 @@ export default async function MemberPage() {
 
                         <button
                             type="submit"
-                            className="w-full bg-orange-600 text-white p-2 rounded hover:"
+                            className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-700"
                         >
                             Submit Manuscript
                         </button>
@@ -78,11 +56,11 @@ export default async function MemberPage() {
                                     <td className="p-3">{book.title}</td>
                                     <td className="p-3">
                                         {/* Dynamic Color based on Status */}
-                                        <span className={`px-2 py-1 rounded text-xs font-bold
-                                            ${book.status === "Published" ? "bg-green-100 text-green-700": 
-                                              book.status === "Pending" ? "bg-yellow-100 text-yellow-700": 
-                                              "bg-red-100 text-red-700"}`
-                                        }>
+                                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                            book.status === "Published" ? "bg-green-100 text-green-700" :
+                                            book.status === "Pending" ? "bg-yellow-100 text-yellow-700" :
+                                            "bg-red-100 text-red-700"
+                                        }`}>
                                             {book.status}
                                         </span>
                                     </td>

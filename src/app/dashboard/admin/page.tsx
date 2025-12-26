@@ -1,30 +1,10 @@
 // "use client";
 
-import { updateStatusAction } from "@/lib/actions";
-import { getBooks } from "@/lib/data"; // Use the same mock data
+import { deleteBookAction, updateStatusAction } from "@/lib/actions";
+import { getBooks, Book } from "@/lib/data"; // Use the same mock data
 
 export default async function AdminPage() {
-    const books = await getBooks();
-
-    // Function to Update Status (Approve/Reject)
-    const updateStatus = (id: number, newstatus: "Published" | "Rejected") => {
-        // We map through the list to find the matching ID
-        const updatedList = books.map((book) => {
-            if (book.id === id) {
-                // Create a copy of the book with the new status
-                return { ...book, status: newstatus };
-            }
-            return book; // Keep other books unchanged
-        });
-
-        setBooks(updatedList); // Update the screen
-        alert(`Book ID ${id} is now ${newstatus}`);
-    };
-
-    // Function to Delete (Optional Challenge)
-    const deleteBook = (id: number) => {
-        setBooks(books.filter((book) => book.id !== id));
-    };
+    const books: Book[] = await getBooks();
 
     return (
         <div className="min-h-screen p-8">
@@ -45,7 +25,7 @@ export default async function AdminPage() {
                 <div className="bg-white p-6 rounded-1g shadow border-1-4 border-green-508">
                     <h3 className="text-gray-500 text-sm"> Published Books</h3>
                     <p className="text-3xl font-bold">
-                        {books.filter(b => b.status == "Published").length}
+                        {books.filter((b: Book) => b.status == "Published").length}
                     </p>
                 </div>
             </div>
@@ -62,7 +42,7 @@ export default async function AdminPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                        {books.map((book) => (
+                        {books.map((book: Book) => (
                             <tr key={book.id} className="hover: bg-gray-50">
                                 <td className="p-4 font-medium">{book.title}</td>
                                 <td className="p-4 text-gray-600"> {book.author}</td>
@@ -78,22 +58,18 @@ export default async function AdminPage() {
 
                                 {/* ACTION BUTTONS */}
                                 <td className="p-4 flex gap-2">
-                                    <form
-                                        action={updateStatusAction.bind(null, book.id, "Published")}
-                                    >
+                                    <form action={updateStatusAction.bind(null, book.id, "Published")} >
                                         <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
                                             Approve
                                         </button>
                                     </form>
-                                    <form
-                                        action={updateStatusAction.bind(null, book.id, "Rejected")}
-                                    >
+                                    <form action={updateStatusAction.bind(null, book.id, "Rejected")} >
                                         <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
                                             Reject
                                         </button>
                                     </form>
                                     {/* CHALLENGE: Call the delete action */}
-                                    <form action="">
+                                    <form action={deleteBookAction.bind(null, book.id)}>
                                         <button className="text-gray-400 hover:text-red-600 ml-2">
                                             (x)
                                         </button>
