@@ -1,29 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { initialBooks } from "@/lib/data"; // Import mock data
+import { uploadBookAction } from "@/lib/actions";
+import { initialBooks as books } from "@/lib/data"; // Import mock data
 
 export default function MemberPage() {
-    const [books, setBooks] = useState(initialBooks);
-    const [title, setTitle] = useState("");
-    const handleUpload = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Create a new dummy book object
-        const newBook = {
-            id: books.length + 1,
-            title: title,
-            author: "Me (Member)",
-            status: "Pending" as const, // Default status
-        };
-
-        //1 Add new book to the list
-        setBooks([...books, newBook]);
-
-        // Reset the form
-        setTitle("");
-        alert("Book uploaded successfully!");
-    };
 
     return (
 
@@ -37,15 +17,13 @@ export default function MemberPage() {
                 <div className="bg-white p-6 rounded-lg shadow border border-orange-100 h-fit">
                     <h2 className="text-xl font-bold text-orange-600 mb-4">Upload Book</h2>
 
-                    <form onSubmit={handleUpload} className="space-y-4">
+                    <form action={uploadBookAction} className="space-y-4">
                         <div>
                             <label
-                                className="block text-sm
-                                mb-1">Book Title</label>
+                                className="block text-sm mb-1">Book Title</label>
                             <input
                                 type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                name="title"
                                 className="w-full border p-2 rounded"
                                 placeholder="Enter title..."
                                 required
@@ -54,7 +32,7 @@ export default function MemberPage() {
 
                         <button
                             type="submit"
-                            className="w-full bg-orange-600 text-white p-2 rounded hover:"
+                            className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-700"
                         >
                             Submit Manuscript
                         </button>

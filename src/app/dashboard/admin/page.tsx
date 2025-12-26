@@ -1,31 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import { updateStatusAction, deleteBookAction, editBookTitle } from "@/lib/actions";
 import { initialBooks } from "@/lib/data"; // Use the same mock data
 
 export default function AdminPage() {
     const [books, setBooks] = useState(initialBooks);
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [draftTitle, setDraftTitle] = useState("");
 
-    // Function to Update Status (Approve/Reject)
-    const updateStatus = (id: number, newstatus: "Published" | "Rejected") => {
-        // We map through the list to find the matching ID
-        const updatedList = books.map((book) => {
-            if (book.id === id) {
-                // Create a copy of the book with the new status
-                return { ...book, status: newstatus };
-            }
-            return book; // Keep other books unchanged
-        });
-
-        setBooks(updatedList); // Update the screen
-        alert(`Book ID ${id} is now ${newstatus}`);
+    const startEditing = (id: number, currentTitle: string) => {
+        setEditingId(id);
+        setDraftTitle(currentTitle);
     };
 
-    // Function to Delete (Optional Challenge)
-    const deleteBook = (id: number) => {
-        setBooks(books.filter((book) => book.id !== id));
+    const saveTitle = async (id: number) => {
+        const formData = new FormData();
+        formData.append("title", draftTitle);
+        await editBookTitle(id, formData);
+        setBooks((prev) => prev.map((b) => (b.id === id ? { ...b, title: draftTitle } : b)));
+        setEditingId(null);
     };
 
+    const cancelEditing = () => {
+        setEditingId(null);
+        setDraftTitle("");
+    };
+    
     return (
         <div className="min-h-screen p-8">
             
@@ -40,12 +41,12 @@ export default function AdminPage() {
             <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="bg-white p-6 rounded-1g shadow border-1-4 border-yellow-400">
                     <h3 className="text-gray-500 text-sm"> Total Submissions</h3>
-                    <p className="text-3x1 font-bold">{books.length}</p>
+                    <p className="text-3x1 font-bold">{initialBooks.length}</p>
                 </div>
                 <div className="bg-white p-6 rounded-1g shadow border-1-4 border-green-508">
                     <h3 className="text-gray-500 text-sm"> Published Books</h3>
                     <p className="text-3xl font-bold">
-                        {books.filter(b => b.status == "Published").length}
+                        {initialBooks.filter(b => b.status == "Published").length}
                     </p>
                 </div>
             </div>
@@ -64,7 +65,19 @@ export default function AdminPage() {
                     <tbody className="divide-y divide-gray-200">
                         {books.map((book) => (
                             <tr key={book.id} className="hover: bg-gray-50">
-                                <td className="p-4 font-medium">{book.title}</td>
+                                <td className="p-4 font-medium">
+                                    
+                                    {/* Edit Button */}
+                                    {editingId === book.id ? (
+                                        <input
+                                            className="w-full border rounded px-2 py-1"
+                                            value={draftTitle}
+                                            onChange={(e) => setDraftTitle(e.target.value)}
+                                        />
+                                    ) : (
+                                        book.title
+                                    )}
+                                </td>
                                 <td className="p-4 text-gray-600"> {book.author}</td>
                                 {/* Status Column */}
                                 <td className="p-4">
@@ -79,19 +92,44 @@ export default function AdminPage() {
                                 {/* ACTION BUTTONS */}
                                 <td className="p-4 flex gap-2">
                                     <button
-                                        onClick={() => updateStatus(book.id, "Published")}
+                                        onClick={() => updateStatusAction(book.id, 'Published')}
                                         className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
                                     >
                                         Approve
                                     </button>
                                     <button
-                                        onClick={() => updateStatus(book.id, "Rejected")}
+                                        onClick={() => updateStatusAction(book.id, "Rejected")}
                                         className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                                     >
                                         Reject
                                     </button>
+                                    
+                                    {/* Edit Button */}
+                                    {editingId === book.id ? (
+                                        <>
+                                            <button
+                                                onClick={() => saveTitle(book.id)}
+                                                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={cancelEditing}
+                                                className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button
+                                            onClick={() => startEditing(book.id, book.title)}
+                                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                                        >
+                                            Edit
+                                        </button>
+                                    )}
                                     <button
-                                        onClick={() => deleteBook(book.id)}
+                                        onClick={() => deleteBookAction(book.id)}
                                         className="text-gray-400 hover:text-red-600 ml-2"
                                     >
                                         (x)
@@ -99,7 +137,7 @@ export default function AdminPage() {
                                 </td>
                             </tr>
                         ))}
-                    </ tbody>
+                    </tbody>
                 </table>
             </div>
         </div >
