@@ -117,7 +117,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-orange-100 bg-black py-6 text-center text-sm text-white0 ">
+      <footer className="border-t border-orange-100 bg-black py-6 text-center text-sm text-white">
         © 2025 PT Cognifera Education Academy. All Rights Reserved.
       </footer>
     </div>

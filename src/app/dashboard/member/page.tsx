@@ -1,10 +1,10 @@
-"use client";
+// "use client";
+import { updateStatusAction } from "@/lib/actions";
+import { getBooks } from "@/lib/data"; // Use the same mock data
 
-import { useState } from "react";
-import { initialBooks } from "@/lib/data"; // Import mock data
-
-export default function MemberPage() {
-    const [books, setBooks] = useState(initialBooks);
+export default async function MemberPage() {
+    const books = await getBooks();
+    const [books, setBooks] = await getBooks();
     const [title, setTitle] = useState("");
     const handleUpload = (e: React.FormEvent) => {
         e.preventDefault();

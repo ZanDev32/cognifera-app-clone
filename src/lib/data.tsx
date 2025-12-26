@@ -1,3 +1,4 @@
+import { prisma } from "./db";
 
 //Define the Book data type
 export interface Book {
@@ -6,18 +7,12 @@ export interface Book {
     author: string;
     status: "Pending" | "Published" | "Rejected";
 }
-// Initial data (Mock Data)
-export const initialBooks: Book[] = [
-    {
-        id: 1,
-        title: "Filosofi Kopi Modern",
-        author: "Dee Lestari (Member)",
-        status: "Published",
-    },
-    {
-        id: 2,
-        title: "Cara Belajar Next. js",
-        author: "Budi Hacker",
-        status: "Pending",
-    }
-];
+export async function getBooks() {
+    const books = await prisma.book.findMany({
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+
+    return books;
+}

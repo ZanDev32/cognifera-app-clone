@@ -1,10 +1,10 @@
-"use client";
+// "use client";
 
-import { useState } from "react";
-import { initialBooks } from "@/lib/data"; // Use the same mock data
+import { updateStatusAction } from "@/lib/actions";
+import { getBooks } from "@/lib/data"; // Use the same mock data
 
-export default function AdminPage() {
-    const [books, setBooks] = useState(initialBooks);
+export default async function AdminPage() {
+    const books = await getBooks();
 
     // Function to Update Status (Approve/Reject)
     const updateStatus = (id: number, newstatus: "Published" | "Rejected") => {
@@ -28,7 +28,7 @@ export default function AdminPage() {
 
     return (
         <div className="min-h-screen p-8">
-            
+
             {/* Header */}
             <header className="flex justify-between items-center mb-8">
                 <h1 className="text-3x1 font-bold text-gray-800">Editor Dashboard</h1>
@@ -49,7 +49,7 @@ export default function AdminPage() {
                     </p>
                 </div>
             </div>
-            
+
             {/* Management Table */}
             <div className="bg-white rounded-1g shadow overflow-hidden">
                 <table className="w-full text-left">
@@ -78,24 +78,26 @@ export default function AdminPage() {
 
                                 {/* ACTION BUTTONS */}
                                 <td className="p-4 flex gap-2">
-                                    <button
-                                        onClick={() => updateStatus(book.id, "Published")}
-                                        className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                                    <form
+                                        action={updateStatusAction.bind(null, book.id, "Published")}
                                     >
-                                        Approve
-                                    </button>
-                                    <button
-                                        onClick={() => updateStatus(book.id, "Rejected")}
-                                        className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form
+                                        action={updateStatusAction.bind(null, book.id, "Rejected")}
                                     >
-                                        Reject
-                                    </button>
-                                    <button
-                                        onClick={() => deleteBook(book.id)}
-                                        className="text-gray-400 hover:text-red-600 ml-2"
-                                    >
-                                        (x)
-                                    </button>
+                                        <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                            Reject
+                                        </button>
+                                    </form>
+                                    {/* CHALLENGE: Call the delete action */}
+                                    <form action="">
+                                        <button className="text-gray-400 hover:text-red-600 ml-2">
+                                            (x)
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         ))}
