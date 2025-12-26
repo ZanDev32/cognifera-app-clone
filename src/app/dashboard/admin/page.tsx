@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deleteBookAction, editBookTitle, updateStatusAction } from "@/lib/actions";
 import { Book } from "@/lib/data"; // Use the same mock data
 
@@ -8,6 +8,16 @@ export default function AdminPage() {
     const [books, setBooks] = useState<Book[]>([]);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [draftTitle, setDraftTitle] = useState("");
+
+    useEffect(() => {
+        const load = async () => {
+            const res = await fetch("/api/books");
+            if (!res.ok) return;
+            const data: Book[] = await res.json();
+            setBooks(data);
+        };
+        load();
+    }, []);
 
     const startEditing = (book: Book) => {
         setEditingId(book.id);

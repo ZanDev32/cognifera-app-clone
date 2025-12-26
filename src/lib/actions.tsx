@@ -5,10 +5,16 @@ import { prisma } from "./db";
 import { Book } from "./data";
 
 export async function getBooks(): Promise<Book[]> {
-    return await prisma.book.findMany({
+    const books = await prisma.book.findMany({
         where: { deleted: false },
         orderBy: { createdAt: "desc" },
     });
+
+    // Cast status from Prisma string to our stricter union type
+    return books.map((book) => ({
+        ...book,
+        status: book.status as Book["status"],
+    }));
 }
 
 export async function uploadBookAction(formData: FormData) {
