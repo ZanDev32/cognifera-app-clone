@@ -1,6 +1,9 @@
 // "use client";
 import { uploadBookAction, getBooks } from "@/lib/actions";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export default async function MemberPage() {
     const books = await getBooks();
 
